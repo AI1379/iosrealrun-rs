@@ -3,11 +3,12 @@
 //
 
 use geo::{Distance, Point};
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Deserialize, Serialize)]
 pub struct Position {
-    pub latitude: f64,
-    pub longitude: f64,
+    pub lat: f64,
+    pub lng: f64,
 }
 
 fn sin(x: f64) -> f64 {
@@ -42,8 +43,8 @@ pub fn bd09_to_wgs84(pos: Position) -> Position {
     const A: f64 = 6378245.0;
     const EE: f64 = 0.00669342162296594323;
 
-    let x = pos.longitude - 0.0065;
-    let y = pos.latitude - 0.006;
+    let x = pos.lng - 0.0065;
+    let y = pos.lat - 0.006;
     let z = (x * x + y * y).sqrt() - 0.00002 * sin(y * X_PI);
     let theta = y.atan2(x) - 0.000003 * cos(x * X_PI);
 
@@ -54,14 +55,14 @@ pub fn bd09_to_wgs84(pos: Position) -> Position {
     let d_lat = transform_latitude(gcj_lng - 105.0, gcj_lat - 35.0);
 
     return Position {
-        latitude: gcj_lat * 2.0 - gcj_lat - d_lat,
-        longitude: gcj_lng * 2.0 - gcj_lng - d_lng,
+        lat: gcj_lat * 2.0 - gcj_lat - d_lat,
+        lng: gcj_lng * 2.0 - gcj_lng - d_lng,
     };
 }
 
 pub fn geo_distance(pos1: Position, pos2: Position) -> f64 {
     return geo::Geodesic::distance(
-        Point::new(pos1.latitude, pos1.longitude),
-        Point::new(pos2.latitude, pos2.longitude),
+        Point::new(pos1.lat, pos1.lng),
+        Point::new(pos2.lat, pos2.lng),
     );
 }

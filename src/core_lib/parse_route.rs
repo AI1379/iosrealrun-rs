@@ -14,8 +14,8 @@ pub fn parse(json: Value) -> Vec<Position> {
         .unwrap()
         .iter()
         .map(|x| Position {
-            latitude: x[0].as_f64().unwrap(),
-            longitude: x[1].as_f64().unwrap(),
+            lat: x[0].as_f64().unwrap(),
+            lng: x[1].as_f64().unwrap(),
         })
         .collect();
 }
