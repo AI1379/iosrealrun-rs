@@ -27,7 +27,10 @@ pub fn start_location_simulation(device: &Device) -> ServiceClient {
             panic!("Lockdownd client error: {}!", e);
         }
     };
-    let service = match lockdown_client.start_service("com.apple.dt.simulatelocation", false) {
+    let service = match lockdown_client.start_service(
+        "com.apple.instruments.server.services.LocationSimulation",
+        false,
+    ) {
         Ok(service) => service,
         Err(e) => {
             panic!("Start service error: {}!", e);
@@ -43,13 +46,9 @@ pub fn start_location_simulation(device: &Device) -> ServiceClient {
 
 pub fn set_location(client: &ServiceClient, pos: Position) {
     let head = [0, 0, 0, 0].to_vec();
-    let lat_len = (pos.lat.to_string().len() as u32)
-        .to_be_bytes()
-        .to_vec();
+    let lat_len = (pos.lat.to_string().len() as u32).to_be_bytes().to_vec();
     let lat_str = pos.lat.to_string().as_bytes().to_vec();
-    let lon_len = (pos.lng.to_string().len() as u32)
-        .to_be_bytes()
-        .to_vec();
+    let lon_len = (pos.lng.to_string().len() as u32).to_be_bytes().to_vec();
     let lon_str = pos.lng.to_string().as_bytes().to_vec();
     let msg = [head, lat_len, lat_str, lon_len, lon_str].concat();
     match client.send(msg) {

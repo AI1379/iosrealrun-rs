@@ -12,11 +12,11 @@ pub struct Position {
 }
 
 fn sin(x: f64) -> f64 {
-    return x.to_radians().sin();
+    return x.sin();
 }
 
 fn cos(x: f64) -> f64 {
-    return x.to_radians().cos();
+    return x.cos();
 }
 
 fn transform_latitude(x: f64, y: f64) -> f64 {
@@ -53,6 +53,13 @@ pub fn bd09_to_wgs84(pos: Position) -> Position {
 
     let d_lng = transform_longitude(gcj_lng - 105.0, gcj_lat - 35.0);
     let d_lat = transform_latitude(gcj_lng - 105.0, gcj_lat - 35.0);
+
+    let rad_lat = gcj_lat / 180.0 * PI;
+    let magic = 1.0 - EE * rad_lat.sin().powi(2);
+    let sqrt_magic = magic.sqrt();
+
+    let d_lng = (d_lng * 180.0) / (A / sqrt_magic * rad_lat.cos() * PI);
+    let d_lat = (d_lat * 180.0) / (A * (1.0 - EE) / (magic * sqrt_magic) * PI);
 
     return Position {
         lat: gcj_lat * 2.0 - gcj_lat - d_lat,

@@ -4,6 +4,5 @@
 
 pub mod coordinate;
 pub mod device;
-pub mod parse_route;
 pub mod route;
 pub mod run;

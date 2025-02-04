@@ -5,9 +5,7 @@
 use core_lib::coordinate::Position;
 use rusty_libimobiledevice::idevice;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use std::path;
-use std::println;
+use std::{cmp::min, path, println};
 
 mod core_lib;
 
@@ -58,10 +56,15 @@ fn run(args: &[String]) {
         }
         idx += 1;
     }
+    println!("Device UDID: {}", udid);
+    println!("Config file path: {}", config_path);
+    println!("Loop count: {}", loop_count);
     let config_data = std::fs::read_to_string(config_path)
         .expect(&format!("Failed to read config file at {}", config_path));
     let config: Config = serde_json::from_str(config_data.as_str())
         .expect(&format!("Failed to parse config data: {}", config_data));
+    println!("Speed: {}m/s", config.speed);
+    println!("Interval: {}s", config.interval);
     let device = match idevice::get_device(udid.as_str()) {
         Ok(device) => device,
         Err(e) => {
@@ -96,24 +99,22 @@ fn help(cmd: &String) {
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    if args.len() < 2 {
-        println!("Missing arguments!");
-        help(&args[0]);
-        return;
-    }
-    let mode = &args[1];
-    let operation = match mode.as_str() {
-        "list" => Operation::ListDevices,
-        "run" => Operation::Run,
-        "help" => Operation::Help,
-        _ => {
-            println!("Invalid mode: {}", mode);
-            return;
+    let operation = if args.len() > 1 {
+        match args[1].as_str() {
+            "list" => Operation::ListDevices,
+            "run" => Operation::Run,
+            "help" => Operation::Help,
+            _ => {
+                println!("Invalid mode: {}", args[1]);
+                return;
+            }
         }
+    } else {
+        Operation::Run
     };
     match operation {
         Operation::Help => help(&args[0]),
         Operation::ListDevices => list_devices(&args[2..]),
-        Operation::Run => run(&args[2..]),
+        Operation::Run => run(&args[min(args.len(), 2)..]),
     }
 }

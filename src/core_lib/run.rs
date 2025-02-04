@@ -2,14 +2,11 @@
 // Created by Renatus Madrigal on 02/03/2025
 //
 
-use rand::{
-    distr::{uniform::UniformFloat, Distribution, Uniform},
-    Rng,
-};
+use rand::distr::{Distribution, Uniform};
 use rusty_libimobiledevice::service::ServiceClient;
 
 use super::{
-    coordinate::Position,
+    coordinate::{bd09_to_wgs84, Position},
     route::{fixed_route, random_route},
 };
 
@@ -29,7 +26,7 @@ fn run_loop(client: &ServiceClient, loc_list: Vec<Position>, v: f64, dt: f64) {
             ));
         }
         clock = std::time::SystemTime::now();
-        super::device::set_location(client, pos);
+        super::device::set_location(client, bd09_to_wgs84(pos));
     }
 }
 
